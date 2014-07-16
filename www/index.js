@@ -43,7 +43,7 @@ document.addEventListener("blendready",function() {
                 updateCardDisplay(id,element);
             },
             left: 0,
-            top: 100
+            top: 70
         });
 
         //退出
@@ -61,7 +61,7 @@ document.addEventListener("blendready",function() {
     });
 
     function initCard(reInit) {
-        cardNum=4;
+        cardNum=50;
         activeCardId = cardNum/2;
 
         sessionStorage.setItem('score',0);
@@ -96,8 +96,18 @@ document.addEventListener("blendready",function() {
         sessionStorage.setItem('direction',dir);
         sessionStorage.setItem('lastId',id);
 
-        $("#dir"+dir,element).css("color","red");
-        $("#dir"+(-1*dir),element).css("color","black");
+//        $("#dir"+dir,element).css("color","red");
+//        $("#dir"+(-1*dir),element).css("color","black");
+
+
+        var imgNum = 6;
+        var indexSel = parseInt(Math.random() * imgNum);
+        for(var i=0;i<imgNum;i++) {
+            var rightDirName= dir == 1 ? "right":"left";
+            var wrongDirName= dir == 1 ? "left":"right";
+            var imgSrc = i == indexSel ? "img/direction/"+rightDirName+"/"+parseInt(Math.random() * imgNum)+".jpg" :"img/direction/"+wrongDirName+"/"+i+".jpg" ;
+            $("#img"+i,element).attr("src",imgSrc);
+        }
     };
 
     function doScore(cardId,element){
