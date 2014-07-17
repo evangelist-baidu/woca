@@ -63,6 +63,7 @@ document.addEventListener("blendready",function() {
     function initCard(reInit) {
         cardNum=50;
         activeCardId = cardNum/2;
+        imgNum = 6;
 
         sessionStorage.setItem('score',0);
         sessionStorage.setItem('lastId',0);
@@ -92,15 +93,21 @@ document.addEventListener("blendready",function() {
     }
 
     function updateCardDisplay(id,element) {
-        var dir = Math.random() > 0.5 ? 1 : -1;
+        var dir;
+        if(id == 1) {
+            dir = 1;
+        } else if(id == cardNum) {
+            dir = -1;
+        } else {
+            dir = Math.random() > 0.5 ? 1 : -1;
+        }
+
         sessionStorage.setItem('direction',dir);
         sessionStorage.setItem('lastId',id);
 
 //        $("#dir"+dir,element).css("color","red");
 //        $("#dir"+(-1*dir),element).css("color","black");
 
-
-        var imgNum = 6;
         var indexSel = parseInt(Math.random() * imgNum);
         for(var i=0;i<imgNum;i++) {
             var rightDirName= dir == 1 ? "right":"left";
