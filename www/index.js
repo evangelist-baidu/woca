@@ -1,38 +1,26 @@
 document.addEventListener("blendready",function() {
 
-    var main = Blend; // notice it!
-
-    //======== in blend ===========
-
-
-    //========== in blend end ===========
-
-    // var api = main.api.layer;
-
-    var api = main.api;//
+    var main = Blend.ui; // notice it!
 
     var start;
 
-
     // FastClick.attach(document.body);//在chrome的touch下面 失灵，所以暂时禁掉
     //if(main.api.getLayerId()!=0) return;
-    main.start("0", function(dom){
+    main.layerInit("0", function(dom){
         initCard();
         var LayerGroup = main.LayerGroup;
-        var Layer = main.Layer;
-        // var api = main.api.layer;
 
         var cards = [];
         for(var i=0;i<cardNum;i++) {
-            cards.push({id:i+1,url:'direction.html'});
+            cards.push({id:String(i+1),url:'direction.html'});
         }
 
         cards[activeCardId-1]['active'] = true;
-
         tabs = new LayerGroup({
             id: "tab",
             layers: cards,
             onshow: function(event) {
+                alert("123");
                 if(endGame()){
                     return;
                 };
@@ -47,14 +35,8 @@ document.addEventListener("blendready",function() {
             top: 100
         });
 
-        //退出
-        main.on("backPressedBeforeExit",function(e){
-            if(window.confirm("确定要退出吗?")){
-                main.api.core.exitApp();
-            }
-        });
 
-        main.start(activeCardId,function(dom){
+        main.layerInit(activeCardId,function(dom){
             console.log(" start "+activeCardId);
 
             updateCardDisplay(activeCardId,dom);
