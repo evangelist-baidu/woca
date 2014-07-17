@@ -11,12 +11,13 @@ document.addEventListener("blendready",function() {
 
     var api = main.api;//
 
-    initCard();
+    var start;
 
 
     // FastClick.attach(document.body);//在chrome的touch下面 失灵，所以暂时禁掉
     //if(main.api.getLayerId()!=0) return;
     main.start("0", function(dom){
+        initCard();
         var LayerGroup = main.LayerGroup;
         var Layer = main.Layer;
         // var api = main.api.layer;
@@ -43,7 +44,7 @@ document.addEventListener("blendready",function() {
                 updateCardDisplay(id,element);
             },
             left: 0,
-            top: 70
+            top: 100
         });
 
         //退出
@@ -61,9 +62,11 @@ document.addEventListener("blendready",function() {
     });
 
     function initCard(reInit) {
-        cardNum=50;
+        cardNum=10;
         activeCardId = cardNum/2;
         imgNum = 6;
+
+//        (typeof start == "undefined") && (start = 0);
 
         sessionStorage.setItem('score',0);
         sessionStorage.setItem('lastId',0);
@@ -74,7 +77,12 @@ document.addEventListener("blendready",function() {
             level = 0;
         }
 
-        releaseTime = 20;
+        if(!start) {
+            start = 1;
+//            alert("点击确定，开始游戏！");
+        }
+
+        releaseTime = 50000000;
         baseScore = 5;
         targetScore = baseScore + level*2;
 
@@ -82,6 +90,7 @@ document.addEventListener("blendready",function() {
             tabs.active(activeCardId);
         }
 
+        $('#level').html(level+1);
         $('#time').html(releaseTime);
         $('#targetscore').html(targetScore);
         $('#score').html(sessionStorage.getItem('score'));
@@ -108,10 +117,12 @@ document.addEventListener("blendready",function() {
 //        $("#dir"+dir,element).css("color","red");
 //        $("#dir"+(-1*dir),element).css("color","black");
 
+        var rightDirName= dir == 1 ? "right":"left";
+        var wrongDirName= dir == 1 ? "left":"right";
+
         var indexSel = parseInt(Math.random() * imgNum);
+
         for(var i=0;i<imgNum;i++) {
-            var rightDirName= dir == 1 ? "right":"left";
-            var wrongDirName= dir == 1 ? "left":"right";
             var imgSrc = i == indexSel ? "img/direction/"+rightDirName+"/"+parseInt(Math.random() * imgNum)+".jpg" :"img/direction/"+wrongDirName+"/"+i+".jpg" ;
             $("#img"+i,element).attr("src",imgSrc);
         }
