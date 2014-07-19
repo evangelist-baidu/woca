@@ -1,89 +1,166 @@
 document.addEventListener("blendready",function() {
 
+//    alert("blendready");
+
     var main = Blend.ui; // notice it!
 
-    var start;
+    cardNum=10;
+    activeCardId = cardNum/2;
+    imgNum = 6;
 
-    // FastClick.attach(document.body);//在chrome的touch下面 失灵，所以暂时禁掉
-    //if(main.api.getLayerId()!=0) return;
     main.layerInit("0", function(dom){
-        initCard();
-        var LayerGroup = main.LayerGroup;
+//        alert("layerinit 0");
 
+        initCard();
+
+        var LayerGroup = main.LayerGroup;
         var cards = [];
         for(var i=0;i<cardNum;i++) {
             cards.push({id:String(i+1),url:'direction.html'});
         }
-
         cards[activeCardId-1]['active'] = true;
         tabs = new LayerGroup({
             id: "tab",
             layers: cards,
             onshow: function(event) {
-                alert("123");
-                if(endGame()){
-                    return;
-                };
-                console.log("onshow start");
+
+//                if(endGame()){
+//                    return;
+//                };
+                console.log("layer group onshow start");
+
                 var id = event['detail'];
                 var element = event['srcElement'];
 
                 doScore(id,element);
                 updateCardDisplay(id,element);
+
+                main.fire("updateCardEvent",false,{"id":id});
             },
             left: 0,
             top: 100
         });
 
+//        main.layerInit(activeCardId,function(dom){
+//            console.log(" start "+activeCardId);
+//
+//            updateCardDisplay(activeCardId,dom);
+//        });
 
-        main.layerInit(activeCardId,function(dom){
-            console.log(" start "+activeCardId);
+        $("#startBtn").click(function(e){
+            alert("startBtn");
+            sessionStorage.setItem('lastId',0);
 
-            updateCardDisplay(activeCardId,dom);
+            score = 0;
+            level = 0;
+            run = 1;
+
+            if(typeof timeHandler == "undefined") {
+                timeHandler = setInterval(updateTime,1000);
+            } else {
+                clearTimeout(timeHandler);
+                timeHandler = undefined;
+            }
         });
+
+        $("#stopBtn").click(function(e){
+            run = !run;
+            if(run) {
+                timeHandler = setInterval(updateTime,1000);
+            } else {
+                clearTimeout(timeHandler);
+                timeHandler = undefined;
+            }
+        });
+
+        function initCard(reInit) {
+            alert("initCard");
+            run=false;
+
+
+            if(reInit) {
+                level++;
+            }else{
+                level = 0;
+            }
+
+            releaseTime = 50000000;
+            baseScore = 5;
+            targetScore = baseScore + level*2;
+
+            if(typeof tabs !== "undefined") {
+                tabs.active(activeCardId);
+            }
+
+            initScorePanel();
+        }
+
+        function initScorePanel() {
+            $('#level').html(level+1);
+            $('#time').html(releaseTime);
+            $('#targetscore').html(targetScore);
+            $('#score').html(sessionStorage.getItem('score'));
+        }
+
+        function doScore(cardId,element){
+            var lastId = sessionStorage.getItem('lastId');
+            if(lastId == 0) {
+                return;
+            }
+
+            var runDir = cardId - lastId >=0 ? 1 : -1;
+            var rightDir = sessionStorage.getItem("direction");
+
+            var score = sessionStorage.getItem('score');
+            runDir == rightDir?score++:score--;
+            sessionStorage.setItem('score',score);
+            updateScoreDisplay();
+
+        }
+
+        function updateScoreDisplay() {
+            var score = sessionStorage.getItem('score');
+            $('#score').html(score);
+            //...
+        }
+
+        function updateTime() {
+            if(!endGame()) {
+                releaseTime--;
+                $('#time').html(releaseTime);
+            }
+
+        }
+
+        function endGame() {
+            //win
+            if(targetScore <= sessionStorage.getItem("score")) {
+                alert("You win!\n,点击确定，继续下一等级游戏！");
+                initCard(1);
+
+                return true;
+            }
+
+            //fail
+//        if(releaseTime <= 0 || sessionStorage.getItem("score") < 0) {
+//            alert("Game over!\n点击确定，重新开始游戏！");
+//            initCard();
+//
+//            return true;
+//        }
+
+            return false;
+        }
+
     });
 
-    function initCard(reInit) {
-        cardNum=10;
-        activeCardId = cardNum/2;
-        imgNum = 6;
-
-//        (typeof start == "undefined") && (start = 0);
-
-        sessionStorage.setItem('score',0);
-        sessionStorage.setItem('lastId',0);
-
-        if(reInit) {
-            level++;
-        }else{
-            level = 0;
-        }
-
-        if(!start) {
-            start = 1;
-//            alert("点击确定，开始游戏！");
-        }
-
-        releaseTime = 50000000;
-        baseScore = 5;
-        targetScore = baseScore + level*2;
-
-        if(typeof tabs !== "undefined") {
-            tabs.active(activeCardId);
-        }
-
-        $('#level').html(level+1);
-        $('#time').html(releaseTime);
-        $('#targetscore').html(targetScore);
-        $('#score').html(sessionStorage.getItem('score'));
+    updateCardDisplay();
 
 
-        if(typeof timeHandler == "undefined") {
-            timeHandler = setInterval(updateTime,1000);
-        }
-    }
+    function updateCardDisplay() {
+        var id = main.getLayerId();
+        alert("aaaa "+ id);
 
-    function updateCardDisplay(id,element) {
         var dir;
         if(id == 1) {
             dir = 1;
@@ -96,9 +173,6 @@ document.addEventListener("blendready",function() {
         sessionStorage.setItem('direction',dir);
         sessionStorage.setItem('lastId',id);
 
-//        $("#dir"+dir,element).css("color","red");
-//        $("#dir"+(-1*dir),element).css("color","black");
-
         var rightDirName= dir == 1 ? "right":"left";
         var wrongDirName= dir == 1 ? "left":"right";
 
@@ -106,59 +180,22 @@ document.addEventListener("blendready",function() {
 
         for(var i=0;i<imgNum;i++) {
             var imgSrc = i == indexSel ? "img/direction/"+rightDirName+"/"+parseInt(Math.random() * imgNum)+".jpg" :"img/direction/"+wrongDirName+"/"+i+".jpg" ;
-            $("#img"+i,element).attr("src",imgSrc);
+            $("#img"+i).attr("src",imgSrc);
         }
     };
 
-    function doScore(cardId,element){
-        var lastId = sessionStorage.getItem('lastId');
-        if(lastId == 0) {
+
+    main.on("updateCardEvent",function(event){
+        if(main.getLayerId() != event.data.id) {
             return;
         }
 
-        var runDir = cardId - lastId >=0 ? 1 : -1;
-        var rightDir = sessionStorage.getItem("direction");
+        alert("updateCardEvent");
 
-        var score = sessionStorage.getItem('score');
-        runDir == rightDir?score++:score--;
-        sessionStorage.setItem('score',score);
-        updateScoreDisplay();
-
-    }
-
-    function updateScoreDisplay() {
-        var score = sessionStorage.getItem('score');
-        $('#score').html(score);
-        //...
-    }
-
-    function updateTime() {
-        if(!endGame()) {
-            releaseTime--;
-            $('#time').html(releaseTime);
-        }
-
-    }
-
-    function endGame() {
-        //win
-        if(targetScore <= sessionStorage.getItem("score")) {
-            alert("You win!\n,点击确定，继续下一等级游戏！");
-            initCard(1);
-
-            return true;
-        }
-
-        //fail
-        if(releaseTime <= 0 || sessionStorage.getItem("score") < 0) {
-            alert("Game over!\n点击确定，重新开始游戏！");
-            initCard();
-
-            return true;
-        }
-
-        return false;
-    }
+        updateCardDisplay();
+    });
 
 });
+
+
 
