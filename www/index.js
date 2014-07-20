@@ -8,6 +8,8 @@ document.addEventListener("blendready",function() {
     activeCardId = cardNum/2;
     imgNum = 6;
 
+    onShowId = activeCardId;
+
     main.layerInit("0", function(dom){
         alert("layerinit 0");
 
@@ -32,12 +34,12 @@ document.addEventListener("blendready",function() {
 //                };
                 console.log("layer group onshow start");
 
-                var id = event['detail'];
+                onShowId = event['detail'];
 //                var element = event['srcElement'];
 
 //                doScore(id,element);
 
-                main.fire("updateCardEvent",false,{"id":id});
+                main.fire("updateCardEvent",false,{"id":onShowId});
             },
             left: 0,
             top: 100
@@ -50,14 +52,16 @@ document.addEventListener("blendready",function() {
 //        });
 
         $("#stopBtn").click(function(e){
-            if(typeof timeHandler == "undefined") {
-                timeHandler = setInterval(updateTime,1000);
-            } else {
-                clearTimeout(timeHandler);
-                timeHandler = undefined;
+//            if(typeof timeHandler == "undefined") {
+//                timeHandler = setInterval(updateTime,1000);
+//            } else {
+//                clearTimeout(timeHandler);
+//                timeHandler = undefined;
+//
+//                //display help page
+//            }
 
-                //display help page
-            }
+            openGameDesc();
         });
 
         function initCard(reInit) {
@@ -143,7 +147,7 @@ document.addEventListener("blendready",function() {
             return false;
         }
 
-        function openGameDesc(callBack) {
+        function openGameDesc() {
             alert("游戏规则说明");
 
         }
@@ -156,7 +160,7 @@ document.addEventListener("blendready",function() {
     });
 
     function updateCardDisplay() {
-        var id = main.getLayerId();
+        var id = (typeof main.getLayerId == "undefined") ? onShowId : main.getLayerId();
         alert("aaaa "+ id);
 
         var dir;
@@ -184,11 +188,11 @@ document.addEventListener("blendready",function() {
 
 
     main.on("updateCardEvent",function(event){
-        alert("updateCardEvent");
+
         if(main.getLayerId() != event.data.id) {
             return;
         }
-
+        alert("updateCardEvent");
 
         updateCardDisplay();
     });
