@@ -9,20 +9,23 @@ document.addEventListener("blendready",function() {
     imgNum = 6;
 
     main.layerInit("0", function(dom){
-//        alert("layerinit 0");
+        alert("layerinit 0");
 
         initCard();
 
         var LayerGroup = main.LayerGroup;
         var cards = [];
+
         for(var i=0;i<cardNum;i++) {
             cards.push({id:String(i+1),url:'direction.html'});
         }
-        cards[activeCardId-1]['active'] = true;
+        cards[activeCardId - 1]['active'] = true;
+
         tabs = new LayerGroup({
             id: "tab",
             layers: cards,
             onshow: function(event) {
+                alert("onshow");
 
 //                if(endGame()){
 //                    return;
@@ -30,10 +33,9 @@ document.addEventListener("blendready",function() {
                 console.log("layer group onshow start");
 
                 var id = event['detail'];
-                var element = event['srcElement'];
+//                var element = event['srcElement'];
 
-                doScore(id,element);
-                updateCardDisplay(id,element);
+//                doScore(id,element);
 
                 main.fire("updateCardEvent",false,{"id":id});
             },
@@ -47,29 +49,14 @@ document.addEventListener("blendready",function() {
 //            updateCardDisplay(activeCardId,dom);
 //        });
 
-        $("#startBtn").click(function(e){
-            alert("startBtn");
-            sessionStorage.setItem('lastId',0);
-
-            score = 0;
-            level = 0;
-            run = 1;
-
+        $("#stopBtn").click(function(e){
             if(typeof timeHandler == "undefined") {
                 timeHandler = setInterval(updateTime,1000);
             } else {
                 clearTimeout(timeHandler);
                 timeHandler = undefined;
-            }
-        });
 
-        $("#stopBtn").click(function(e){
-            run = !run;
-            if(run) {
-                timeHandler = setInterval(updateTime,1000);
-            } else {
-                clearTimeout(timeHandler);
-                timeHandler = undefined;
+                //display help page
             }
         });
 
@@ -77,11 +64,11 @@ document.addEventListener("blendready",function() {
             alert("initCard");
             run=false;
 
-
             if(reInit) {
                 level++;
             }else{
                 level = 0;
+                sessionStorage.setItem('lastId',0);
             }
 
             releaseTime = 50000000;
@@ -93,6 +80,10 @@ document.addEventListener("blendready",function() {
             }
 
             initScorePanel();
+
+            if(typeof timeHandler == "undefined") {
+                timeHandler = setInterval(updateTime,1000);
+            }
         }
 
         function initScorePanel() {
@@ -152,10 +143,17 @@ document.addEventListener("blendready",function() {
             return false;
         }
 
+        function openGameDesc(callBack) {
+            alert("游戏规则说明");
+
+        }
+
     });
 
-    updateCardDisplay();
-
+    main.layerInit(String(activeCardId), function(dom){
+        alert("main layerInit "+activeCardId);
+        updateCardDisplay();
+    });
 
     function updateCardDisplay() {
         var id = main.getLayerId();
@@ -186,11 +184,11 @@ document.addEventListener("blendready",function() {
 
 
     main.on("updateCardEvent",function(event){
+        alert("updateCardEvent");
         if(main.getLayerId() != event.data.id) {
             return;
         }
 
-        alert("updateCardEvent");
 
         updateCardDisplay();
     });
