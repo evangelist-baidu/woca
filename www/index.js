@@ -42,10 +42,10 @@ document.addEventListener("blendready",function() {
                 main.fire("updateCardEvent",id,{"id":id});
             },
             left: 0,
-            top: 100
+            top: 70
         });
 
-        $("#stopBtn").click(function(e){
+        $("#pauseBtn").click(function(e){
 //            if(typeof timeHandler == "undefined") {
 //                timeHandler = setInterval(updateTime,1000);
 //            } else {
@@ -196,12 +196,12 @@ document.addEventListener("blendready",function() {
 
 });
 
-debug_flag = 1;
+debug_flag = 0;
 debug_layer = 0;
 debug_card = 0;
 debug_score = 0;
 debug_storge = 0;
-debug_fire= 0;
+debug_fire= 1;
 
 function flag_alert(){
     if(debug_flag && arguments.length > 0 && arguments[0]) {
