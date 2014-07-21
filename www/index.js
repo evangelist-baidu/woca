@@ -29,23 +29,16 @@ document.addEventListener("blendready",function() {
                 flag_alert(debug_layer,"onshow",event['detail']);
 
                 var id = event['detail'];
-//                var lastId = localStorage.getItem('lastId');
-//                if((typeof lastId !== "undefined") && lastId == id) {
-//                    return;
-//                }
 
                 if(endGame()){
                     return;
                 };
-
-
 
 //                in web
 //                var element = event['srcElement'];
 
                 doScore(id);
                 flag_alert(debug_fire,"start fire updateEvent");
-//                main.fire("updateCardEvent",false,{"id":id});
                 main.fire("updateCardEvent",id,{"id":id});
             },
             left: 0,
@@ -203,7 +196,7 @@ document.addEventListener("blendready",function() {
 
 });
 
-debug_flag = 0;
+debug_flag = 1;
 debug_layer = 0;
 debug_card = 0;
 debug_score = 0;
