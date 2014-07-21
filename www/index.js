@@ -1,6 +1,6 @@
 document.addEventListener("blendready",function() {
 
-//    flag_alert(debug_layer,"blendready");
+    flag_alert(debug_layer,"blendready");
 
     var main = Blend.ui; // notice it!
 
@@ -133,12 +133,12 @@ document.addEventListener("blendready",function() {
             }
 
             //fail  || score < 0
-        if(releaseTime <= 0 ) {
-            alert("Game over!\n点击确定，重新开始游戏！");
-            initCard();
+            if(releaseTime <= 0 ) {
+                alert("Game over!\n点击确定，重新开始游戏！");
+                initCard();
 
-            return true;
-        }
+                return true;
+            }
 
             return false;
         }
