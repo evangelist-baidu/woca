@@ -1,6 +1,6 @@
 document.addEventListener("blendready",function() {
 
-    flag_alert(debug_layer,"blendready");
+    flag_log(debug_layer,"blendready");
 
     var main = Blend.ui; // notice it!
 
@@ -10,7 +10,7 @@ document.addEventListener("blendready",function() {
     imgLibraryNum = 8;
 
     main.layerInit("0", function(dom){
-        flag_alert(debug_layer,"layerinit 0");
+        flag_log(debug_layer,"layerinit 0");
 
         initCard();
 
@@ -18,7 +18,7 @@ document.addEventListener("blendready",function() {
         var cards = [];
 
         for(var i=0;i<cardNum;i++) {
-            cards.push({id:String(i+1),url:'direction.html',autoload:true});
+            cards.push({id:String(i+1),url:'direction.html'});//,autoload:true
         }
         cards[activeCardId - 1]['active'] = true;
 
@@ -26,7 +26,7 @@ document.addEventListener("blendready",function() {
             id: "tab",
             layers: cards,
             onshow: function(event) {
-                flag_alert(debug_layer,"onshow",event['detail']);
+                flag_log(debug_layer,"onshow",event['detail']);
 
                 var id = event['detail'];
 
@@ -35,7 +35,7 @@ document.addEventListener("blendready",function() {
                 };
 
                 doScore(id);
-                flag_alert(debug_fire,"start fire updateEvent");
+                flag_log(debug_fire,"start fire updateEvent");
                 main.fire("updateCardEvent",id,{"id":id});
             },
             left: 0,
@@ -56,7 +56,7 @@ document.addEventListener("blendready",function() {
         });
 
         function initCard(reInit) {
-            flag_alert(debug_layer,"initCard");
+            flag_log(debug_layer,"initCard");
 
             if(reInit) {
                 level++;
@@ -66,7 +66,7 @@ document.addEventListener("blendready",function() {
             }
             localStorage.setItem('lastId',0);
             score = 0;
-            releaseTime = 20;
+            releaseTime = 30;
             baseScore = 3;
             targetScore = baseScore + level*2;
 
@@ -90,24 +90,24 @@ document.addEventListener("blendready",function() {
 
         function doScore(cardId){
             var lastId = localStorage.getItem('lastId');
-            flag_alert(debug_card,"doscore lastid",lastId,'cardId',cardId);
+            flag_log(debug_card,"doscore lastid",lastId,'cardId',cardId);
             if(lastId == 0 || lastId == cardId) {
                 return;
             }
 
-            flag_alert(debug_score,'start score. lasterId is',lastId);
+            flag_log(debug_score,'start score. lasterId is',lastId);
 
             var runDir = cardId - lastId >=0 ? 1 : -1;
-            flag_alert(debug_score,'direction',localStorage.getItem("direction"));
+            flag_log(debug_score,'direction',localStorage.getItem("direction"));
             var rightDir = localStorage.getItem("direction");
 
             runDir == rightDir?score++:score--;
-            flag_alert(debug_score,'current socre',score);
+            flag_log(debug_score,'current socre',score);
             updateScoreDisplay();
         }
 
         function updateScoreDisplay() {
-            flag_alert(debug_score,"当前分数为",score);
+            flag_log(debug_score,"当前分数为",score);
             $('#score').html(score);
             //...
         }
@@ -147,13 +147,22 @@ document.addEventListener("blendready",function() {
 
     });
 
-    main.layerInit(String(activeCardId), function(dom){
-        flag_alert(debug_layer,"main layerInit ",activeCardId);
-        updateCardDisplay();
-    });
+//    main.layerInit(String(activeCardId), function(dom){
+//        flag_log(debug_layer,"main layerInit ",activeCardId);
+//        updateCardDisplay();
+//    });
+
+    updateCardDisplay();
 
     function updateCardDisplay() {
         var id =(typeof main.getLayerId == "undefined") ? 6 : main.getLayerId();
+
+        flag_log(debug_card,'lastId',id);
+
+        if(localStorage.getItem('lastId') == id) {
+            flag_log(debug_card,'return for equal',id);
+            return;
+        }
 
         var dir;
         if(id <= 3) {
@@ -166,7 +175,6 @@ document.addEventListener("blendready",function() {
 
         localStorage.setItem('direction',dir);
         localStorage.setItem('lastId',id);
-        flag_alert(debug_card,'lastId',id);
 
         var rightDirName= dir == 1 ? "right":"left";
         var wrongDirName= dir == 1 ? "left":"right";
@@ -180,33 +188,43 @@ document.addEventListener("blendready",function() {
         }
     };
 
+//    setTimeout(function(){
+//
+//    },10000);
+
 
     main.on("updateCardEvent",function(event){
 
-        flag_alert(debug_fire,"fire updateEvent after",event.data.id);//,main.getLayerId()
+        flag_log(debug_fire,"fire updateEvent after",event.data.id);//,main.getLayerId()
         var eventCardId = event.data.id;
 
-        flag_alert(debug_layer,"updateCardEvent"+"real",eventCardId);
+        flag_log(debug_layer,"updateCardEvent"+"real",eventCardId);
 
         updateCardDisplay();
     });
 
+
 });
 
 debug_flag = 0;
+
+debug_alert = 0;
+debug_console_log = 1;
+
 debug_layer = 0;
-debug_card = 0;
+debug_card = 1;
 debug_score = 0;
 debug_storge = 0;
 debug_fire= 1;
 
-function flag_alert(){
+function flag_log(){
     if(debug_flag && arguments.length > 0 && arguments[0]) {
-        var str ='';
+        var str ='yl_debug';
         for(var i = 1;i < arguments.length;i++) {
-            str +=  arguments[i].toString() + ' ';
+            str += ',' + arguments[i].toString();
         }
-        alert(str);
+        debug_alert && alert(str);
+        debug_console_log && console.log(str);
     }
 }
 
