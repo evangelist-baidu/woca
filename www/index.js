@@ -4,10 +4,11 @@ document.addEventListener("blendready",function() {
 
     var main = Blend.ui; // notice it!
 
-    cardNum=10;
+    cardNum=8;
     activeCardId = cardNum/2;
     imgNum = 6;
     imgLibraryNum = 8;
+    lifemax= 2;
 
     main.layerInit("0", function(dom){
         flag_log(debug_layer,"layerinit 0");
@@ -87,11 +88,12 @@ document.addEventListener("blendready",function() {
                 level++;
             }else{
                 level = 0;
+                life = lifemax;
 
             }
             localStorage.setItem('lastId',0);
             score = 0;
-            releaseTime = 3000;
+            releaseTime = 30;
             baseScore = 3;
             targetScore = baseScore + level*2;
 
@@ -110,29 +112,29 @@ document.addEventListener("blendready",function() {
             $('#level').html(level+1);
             $('#time').html(releaseTime);
             $('#score').html(score+'/'+targetScore);
+            $('#life').html(life);
         }
 
         function doScore(cardId){
             var lastId = localStorage.getItem('lastId');
             flag_log(debug_card,"doscore lastid",lastId,'cardId',cardId);
-            if(!lastId || lastId == cardId) {
+            if(!lastId || lastId == '0'|| lastId == cardId) {
                 return;
             }
 
-            flag_log(debug_score,'start score. lasterId is',lastId);
+            flag_log(debug_score,'start score. lasterId is',lastId,(typeof lastId));
 
             var runDir = cardId - lastId >=0 ? 1 : -1;
             flag_log(debug_score,'direction',localStorage.getItem("direction"));
             var rightDir = localStorage.getItem("direction");
+            runDir == rightDir ? score++ : life--;
 
-            runDir == rightDir?score++:score--;
-            flag_log(debug_score,'current socre',score);
             updateScoreDisplay();
         }
 
         function updateScoreDisplay() {
-            flag_log(debug_score,"当前分数为",score);
             $('#score').html(score+'/'+targetScore);
+            $('#life').html(life);
             //...
         }
 
@@ -145,18 +147,24 @@ document.addEventListener("blendready",function() {
         }
 
         function endGame() {
-            //win
-            if(targetScore <= score) {
-                alert("You win!\n,点击确定，继续下一等级游戏！");
-                initCard(1);
+            //fail
+            if(releaseTime <= 0 || life <=0) {
+                alert("Game over!\n点击确定，重新开始游戏！");
+                initCard();
 
                 return true;
             }
 
-            //fail  || score < 0
-            if(releaseTime <= 0 ) {
-                alert("Game over!\n点击确定，重新开始游戏！");
-                initCard();
+            //win
+            if(targetScore <= score) {
+                var str = ("WIN! \n点击确定，继续下一等级游戏！");
+                if(life < lifemax) {
+                    life++;
+                    str += "\n 生命+1 "
+                }
+                alert(str);
+
+                initCard(1);
 
                 return true;
             }
@@ -169,16 +177,9 @@ document.addEventListener("blendready",function() {
 
         }
 
-//        setTimeout(openGameDesc,1500);
+        setTimeout(openGameDesc,1500);
 
     });
-
-//    main.layerInit(String(activeCardId), function(dom){
-//        flag_log(debug_layer,"main layerInit ",activeCardId);
-//        updateCardDisplay();
-//    });
-
-//    updateCardDisplay();
 
     (function(){
         var id = main.getLayerId();
@@ -243,8 +244,7 @@ debug_console_log = 0;
 
 debug_layer = 0;
 debug_card = 0;
-debug_score = 0;
-debug_storge = 0;
+debug_score = 1;
 debug_fire= 0;
 debug_run= 0;
 
