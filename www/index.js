@@ -141,9 +141,11 @@ document.addEventListener("blendready",function() {
         }
 
         function openGameDesc() {
-            alert("游戏规则说明:根据图片中显示的方向，选择出现次数最多的方向滑动屏幕！");
+            alert("游戏规则说明:每幅图片都可以表示一个方向，按照出现次数最多的方向滑动屏幕！\n\n方向提示：箭头方向，动物朝向，左/右手");
 
         }
+
+        openGameDesc();
 
     });
 
