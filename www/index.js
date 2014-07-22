@@ -34,9 +34,6 @@ document.addEventListener("blendready",function() {
                     return;
                 };
 
-//                in web
-//                var element = event['srcElement'];
-
                 doScore(id);
                 flag_alert(debug_fire,"start fire updateEvent");
                 main.fire("updateCardEvent",id,{"id":id});
@@ -69,7 +66,7 @@ document.addEventListener("blendready",function() {
             }
             localStorage.setItem('lastId',0);
             score = 0;
-            releaseTime = 20000;
+            releaseTime = 20;
             baseScore = 3;
             targetScore = baseScore + level*2;
 
