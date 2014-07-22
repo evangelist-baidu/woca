@@ -13,6 +13,7 @@ document.addEventListener("blendready",function() {
         flag_log(debug_layer,"layerinit 0");
 
         initCard();
+        localStorage.clear();
 
         var LayerGroup = main.LayerGroup;
         var cards = [];
@@ -27,6 +28,7 @@ document.addEventListener("blendready",function() {
             layers: cards,
             onshow: function(event) {
                 flag_log(debug_layer,"onshow",event['detail']);
+                flag_log(debug_run,"onshow",event['detail']);
 
                 var id = event['detail'];
 
@@ -34,13 +36,36 @@ document.addEventListener("blendready",function() {
                     return;
                 };
 
-                doScore(id);
-                flag_log(debug_fire,"start fire updateEvent");
-                main.fire("updateCardEvent",id,{"id":id});
+                localStorage.setItem("onshow"+id,1);
+                run(id);
             },
             left: 0,
             top: 70
         });
+
+        main.on("runGame",function(event){
+
+            flag_log(debug_fire,"run event after",event.data.id);//,main.getLayerId()
+            run(event.data.id);
+        });
+
+        function run(id) {
+            var onloadFlag = localStorage.getItem("onload"+id);
+
+            if(!localStorage.getItem("onload"+id)) {
+                flag_log(debug_run,"onload"+id,'unfinish');
+                return;
+            }
+
+            if(!localStorage.getItem("onshow"+id)) {
+                flag_log(debug_run,"onshow"+id,'unfinish');
+                return;
+            }
+
+            doScore(id);
+            flag_log(debug_fire,"start fire updateEvent");
+            main.fire("updateCardEvent",id,{"id":id});
+        }
 
         $("#pauseBtn").click(function(e){
 //            if(typeof timeHandler == "undefined") {
@@ -66,7 +91,7 @@ document.addEventListener("blendready",function() {
             }
             localStorage.setItem('lastId',0);
             score = 0;
-            releaseTime = 30;
+            releaseTime = 3000;
             baseScore = 3;
             targetScore = baseScore + level*2;
 
@@ -84,14 +109,13 @@ document.addEventListener("blendready",function() {
         function initScorePanel() {
             $('#level').html(level+1);
             $('#time').html(releaseTime);
-            $('#targetscore').html(targetScore);
-            $('#score').html(score);
+            $('#score').html(score+'/'+targetScore);
         }
 
         function doScore(cardId){
             var lastId = localStorage.getItem('lastId');
             flag_log(debug_card,"doscore lastid",lastId,'cardId',cardId);
-            if(lastId == 0 || lastId == cardId) {
+            if(!lastId || lastId == cardId) {
                 return;
             }
 
@@ -108,7 +132,7 @@ document.addEventListener("blendready",function() {
 
         function updateScoreDisplay() {
             flag_log(debug_score,"当前分数为",score);
-            $('#score').html(score);
+            $('#score').html(score+'/'+targetScore);
             //...
         }
 
@@ -145,7 +169,7 @@ document.addEventListener("blendready",function() {
 
         }
 
-        setTimeout(openGameDesc,1500);
+//        setTimeout(openGameDesc,1500);
 
     });
 
@@ -154,7 +178,15 @@ document.addEventListener("blendready",function() {
 //        updateCardDisplay();
 //    });
 
-    updateCardDisplay();
+//    updateCardDisplay();
+
+    (function(){
+        var id = main.getLayerId();
+        localStorage.setItem('onload'+id,1);
+        main.fire("runGame",0,{"id":id});
+        flag_log(debug_run,'onload finish',id);
+    })();
+
 
     function updateCardDisplay() {
         var id =(typeof main.getLayerId == "undefined") ? 6 : main.getLayerId();
@@ -190,10 +222,6 @@ document.addEventListener("blendready",function() {
         }
     };
 
-//    setTimeout(function(){
-//
-//    },10000);
-
 
     main.on("updateCardEvent",function(event){
 
@@ -210,24 +238,30 @@ document.addEventListener("blendready",function() {
 
 debug_flag = 0;
 
-debug_alert = 0;
-debug_console_log = 1;
+debug_alert = 1;
+debug_console_log = 0;
 
 debug_layer = 0;
-debug_card = 1;
+debug_card = 0;
 debug_score = 0;
 debug_storge = 0;
-debug_fire= 1;
+debug_fire= 0;
+debug_run= 0;
 
 function flag_log(){
-    if(debug_flag && arguments.length > 0 && arguments[0]) {
-        var str ='yl_debug';
-        for(var i = 1;i < arguments.length;i++) {
-            str += ',' + arguments[i].toString();
+    try{
+        if(debug_flag && arguments.length > 0 && arguments[0]) {
+            var str ='yl_debug';
+            for(var i = 1;i < arguments.length;i++) {
+                str += ',' + arguments[i];
+            }
+            debug_alert && alert(str);
+            debug_console_log && console.log(str);
         }
-        debug_alert && alert(str);
-        debug_console_log && console.log(str);
+    }catch(e){
+        alert("flag_log error! "+arguments[1]);
     }
+
 }
 
 
