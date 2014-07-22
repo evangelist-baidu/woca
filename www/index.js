@@ -145,7 +145,7 @@ document.addEventListener("blendready",function() {
 
         }
 
-        openGameDesc();
+        setTimeout(openGameDesc,1500);
 
     });
 
